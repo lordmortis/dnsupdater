@@ -1,6 +1,9 @@
 aws:
   id:  <AWS USER>
   key: <AWS USER SECRET>
+server:
+  bindAddress: 127.0.0.1
+  port: 3000
 users:
   - secret: <UPDATE SECRET>
     name: <FRIENDLY NAME>
