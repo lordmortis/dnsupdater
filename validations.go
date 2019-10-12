@@ -17,7 +17,6 @@ func validTimestamp(timeStamp time.Time) bool {
 
 func validSignature(request UpdateRequest, secret string) bool {
 	hash := md5.New()
-	data := fmt.Sprintf("%s\n%d\n", request.Hostname, request.Timestamp.Unix())
 	_, err := io.WriteString(hash, fmt.Sprintf("%s\n%d\n", request.Hostname, request.Timestamp.Unix()))
 	if err != nil {
 		return false
@@ -30,7 +29,6 @@ func validSignature(request UpdateRequest, secret string) bool {
 		}
 	}
 
-	data = data + fmt.Sprintf("%s\n", secret)
 	_, err = io.WriteString(hash, fmt.Sprintf("%s\n", secret))
 	if err != nil {
 		return false
@@ -38,7 +36,6 @@ func validSignature(request UpdateRequest, secret string) bool {
 
 	calcSig := fmt.Sprintf("%x", hash.Sum(nil))
 
-	fmt.Printf("Data string: \"%s\"", data)
 	fmt.Printf("Comparing: \"%s\" and \"%s\"", calcSig, request.Signature)
 
 	return calcSig == request.Signature
