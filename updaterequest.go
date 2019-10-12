@@ -26,14 +26,14 @@ func updateRequest(c *gin.Context) {
 
 	request.Timestamp = request.Timestamp.UTC()
 
-/*	if !validTimestamp(request.Timestamp) {
+	if !validTimestamp(request.Timestamp) {
 		c.String(
 			http.StatusBadRequest,
 			"Timestamp %s is not within the last %d seconds\n",
 			request.Timestamp,
 			MAX_REQUEST_AGE_IN_SECTIONS)
 		return
-	}*/
+	}
 
 	if user, ok := conf.UsersByHostname[request.Hostname]; ok {
 		if validSignature(request, user.Secret) {
