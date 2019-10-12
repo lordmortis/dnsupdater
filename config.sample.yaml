@@ -1,0 +1,9 @@
+aws:
+  id:  <AWS USER>
+  key: <AWS USER SECRET>
+users:
+  - secret: <UPDATE SECRET>
+    name: <FRIENDLY NAME>
+    hosts:
+      - my.cool.host.one.com
+      - my.cool.host.two.com
