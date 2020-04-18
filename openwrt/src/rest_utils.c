@@ -18,8 +18,26 @@ char *ipField = "ipv4";
 char *timestampField = "timestamp";
 char *signatureField = "signature";
 
+int statusCode = -1;
+
 size_t data_write_callback(char *ptr, size_t size, size_t nmemb, void *userdata) {
     return size * nmemb;
+}
+
+size_t data_header_callback(char *buffer, size_t size, size_t nitems, void *userdata) {
+    if (strncmp(buffer, "HTTP", 4) == 0) {
+        int index = 0;
+        char* token = strtok(buffer, " ");
+        while(token) {
+            if (index == 1) {
+                statusCode = atoi(token);
+                return nitems * size;
+            }
+            index++;
+            token = strtok(NULL, " ");
+        }
+    }
+    return nitems * size;
 }
 
 bool update_entry(const char *hostname, const char *secret, const char *ip) {
@@ -35,7 +53,7 @@ bool update_entry(const char *hostname, const char *secret, const char *ip) {
     }
 
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, data_write_callback);
-    //    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+    curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, data_header_callback);
 
     md5_context md5Context;
     md5_starts(&md5Context);
@@ -73,11 +91,16 @@ bool update_entry(const char *hostname, const char *secret, const char *ip) {
     char *url = malloc(sizeof(char) * urlLength);
     sprintf(url, "%s?%s=%s&%s=%s&%s=%s&%s=%s", servicePath, hostnameField, hostname, ipField, ip, timestampField, epochString, signatureField, hashChar);
 
+    statusCode = -1;
     curl_easy_setopt(curl, CURLOPT_URL, url);
     CURLcode res = curl_easy_perform(curl);
     success = res == CURLE_OK;
     if (!success) {
         fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+    }
+
+    if (statusCode != 200) {
+        success = false;
     }
 
     free(hashBytes);
